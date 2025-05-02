@@ -2,7 +2,7 @@ class Bailiff < Formula
     desc "On-demand CLI tool manager with Zinit-like syntax for ZSH"
     homepage "https://github.com/livetheoogway/bailiff"
     url "https://github.com/livetheoogway/bailiff/archive/refs/tags/v1.0.0.tar.gz"
-    sha256 "[your-sha256-hash]"
+    sha256 "0ab0aaac8537e328e8358480e1fc8f1a0813a837e0b0aab24a3d7a7e39b6c67f"
     license "MIT"
     
     def install
