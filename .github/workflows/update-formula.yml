@@ -46,7 +46,7 @@ jobs:
       - name: Check current formula version
         run: |
           # Extract version from URL and clean it
-          URL_VERSION=$(grep -o 'tags/v[0-9.]*' $FORMULA_PATH | cut -d'/' -f2 | tr -d 'v' | tr -d '.' || echo "none")
+          URL_VERSION=$(grep -o 'tags/v[0-9.]*' $FORMULA_PATH | cut -d'/' -f2 | tr -d 'v' | sed 's/.$//' || echo "none")
           # If that didn't work, try again with a different approach
           if [ "$URL_VERSION" = "none" ] || [ -z "$URL_VERSION" ]; then
             URL_VERSION=$(grep -o 'tags/v[0-9.]*' $FORMULA_PATH | sed 's/tags\/v\([0-9.]*\)/\1/' || echo "none")
