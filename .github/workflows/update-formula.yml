@@ -18,7 +18,7 @@ jobs:
           
       - name: Set up environment
         run: |
-          echo "REPO_OWNER=yourusername" >> $GITHUB_ENV
+          echo "REPO_OWNER=livetheoogway" >> $GITHUB_ENV
           echo "REPO_NAME=bailiff" >> $GITHUB_ENV
           echo "FORMULA_PATH=Formula/bailiff.rb" >> $GITHUB_ENV
       
