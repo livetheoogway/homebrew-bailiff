@@ -1,0 +1,104 @@
+name: Update Formula on New Release
+on:
+  workflow_dispatch: # Allow manual trigger
+  schedule:
+    - cron: '0 */12 * * *'  # Check twice daily
+
+jobs:
+  update-formula:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout tap repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          
+      - name: Set up environment
+        run: |
+          echo "REPO_OWNER=livetheoogway" >> $GITHUB_ENV
+          echo "REPO_NAME=bailiff" >> $GITHUB_ENV
+          echo "FORMULA_PATH=Formula/bailiff.rb" >> $GITHUB_ENV
+      
+      - name: Fetch latest release info
+        id: latest
+        run: |
+          # Fetch latest release information
+          RELEASE_DATA=$(curl -s https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases/latest)
+          TAG_NAME=$(echo "$RELEASE_DATA" | jq -r .tag_name)
+          
+          if [ "$TAG_NAME" == "null" ]; then
+            echo "No release found"
+            exit 1
+          fi
+          
+          VERSION=${TAG_NAME#v}
+          TARBALL_URL="https://github.com/$REPO_OWNER/$REPO_NAME/archive/refs/tags/$TAG_NAME.tar.gz"
+          
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "TARBALL_URL=$TARBALL_URL" >> $GITHUB_ENV
+          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
+      
+      - name: Calculate SHA256
+        id: sha
+        run: |
+          curl -sL "$TARBALL_URL" -o release.tar.gz
+          SHA256=$(sha256sum release.tar.gz | cut -d' ' -f1)
+          echo "SHA256=$SHA256" >> $GITHUB_ENV
+      
+      - name: Check current formula version
+        id: check
+        run: |
+          CURRENT_VERSION=$(grep -o 'version "[^"]*"' $FORMULA_PATH | cut -d'"' -f2 || echo "none")
+          CURRENT_SHA=$(grep -o 'sha256 "[^"]*"' $FORMULA_PATH | cut -d'"' -f2 || echo "none")
+          
+          echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
+          echo "CURRENT_SHA=$CURRENT_SHA" >> $GITHUB_ENV
+          
+          if [ "$CURRENT_VERSION" == "$VERSION" ] && [ "$CURRENT_SHA" == "$SHA256" ]; then
+            echo "Formula is already up to date"
+            echo "NEEDS_UPDATE=false" >> $GITHUB_ENV
+          else
+            echo "Formula needs updating"
+            echo "NEEDS_UPDATE=true" >> $GITHUB_ENV
+          fi
+      
+      - name: Update formula
+        if: env.NEEDS_UPDATE == 'true'
+        run: |
+          # Update version and SHA256
+          sed -i "s|url \".*\"|url \"$TARBALL_URL\"|" $FORMULA_PATH
+          sed -i "s|sha256 \".*\"|sha256 \"$SHA256\"|" $FORMULA_PATH
+          
+          # Update any version strings in the formula
+          sed -i "s|version \".*\"|version \"$VERSION\"|" $FORMULA_PATH
+          
+          # Update version check in test block
+          sed -i "s|\"bailiff v[0-9.]*\"|\"bailiff v$VERSION\"|" $FORMULA_PATH
+      
+      - name: Create Pull Request
+        if: env.NEEDS_UPDATE == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          commit-message: "Update bailiff to ${{ env.VERSION }}"
+          title: "Update bailiff to ${{ env.VERSION }}"
+          body: |
+            Updates bailiff formula to version ${{ env.VERSION }}.
+            
+            Changes:
+            - Updated URL to: ${{ env.TARBALL_URL }}
+            - Updated SHA256 to: ${{ env.SHA256 }}
+            
+            This PR was automatically created by the update-formula workflow.
+          branch: "update-bailiff-${{ env.VERSION }}"
+          delete-branch: true
+      - name: Send notification
+        if: env.NEEDS_UPDATE == 'true'
+        uses: some-notification-action@v1
+        with:
+          message: "Formula updated to version ${{ env.VERSION }}"
+
+
+
+
+          
