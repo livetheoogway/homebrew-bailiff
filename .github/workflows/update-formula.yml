@@ -84,11 +84,6 @@ jobs:
             - Updated SHA256 to: ${{ env.SHA256 }}
           branch: "update-bailiff-${{ env.VERSION }}"
           delete-branch: true
-      - name: Send notification
-        if: env.NEEDS_UPDATE == 'true'
-        uses: some-notification-action@v1
-        with:
-          message: "Formula updated to version ${{ env.VERSION }}"
 
 
 
