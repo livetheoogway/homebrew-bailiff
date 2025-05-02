@@ -39,8 +39,13 @@ jobs:
       
       - name: Calculate SHA256
         run: |
-          curl -sL "$TARBALL_URL" -o release.tar.gz
-          SHA256=$(sha256sum release.tar.gz | cut -d' ' -f1)
+          # Create a temporary directory
+          TEMP_DIR=$(mktemp -d)
+          curl -sL "$TARBALL_URL" -o "$TEMP_DIR/release.tar.gz"
+          SHA256=$(sha256sum "$TEMP_DIR/release.tar.gz" | cut -d' ' -f1)
+          # Delete the tarball after calculating the hash
+          rm -f "$TEMP_DIR/release.tar.gz"
+          rmdir "$TEMP_DIR"
           echo "SHA256=$SHA256" >> $GITHUB_ENV
       
       - name: Check current formula version
