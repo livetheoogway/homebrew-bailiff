@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout tap repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           
@@ -77,7 +77,7 @@ jobs:
       
       - name: Create Pull Request
         if: env.NEEDS_UPDATE == 'true'
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           commit-message: "Update bailiff to ${{ env.VERSION }}"
