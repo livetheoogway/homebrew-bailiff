@@ -18,13 +18,11 @@ jobs:
           
       - name: Set up environment
         run: |
-          echo "REPO_OWNER=livetheoogway" >> $GITHUB_ENV
-          echo "REPO_NAME=bailiff" >> $GITHUB_ENV
           echo "FORMULA_PATH=bailiff.rb" >> $GITHUB_ENV
       
       - name: Fetch latest release info
         run: |
-          RELEASE_DATA=$(curl -s https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases/latest)
+          RELEASE_DATA=$(curl -s https://api.github.com/repos/livetheoogway/bailiff/releases/latest)
           TAG_NAME=$(echo "$RELEASE_DATA" | jq -r .tag_name)
           
           if [ "$TAG_NAME" == "null" ]; then
@@ -33,7 +31,7 @@ jobs:
           fi
           
           VERSION=${TAG_NAME#v}
-          TARBALL_URL="https://github.com/$REPO_OWNER/$REPO_NAME/archive/refs/tags/$TAG_NAME.tar.gz"
+          TARBALL_URL="https://github.com/livetheoogway/bailiff/archive/refs/tags/$TAG_NAME.tar.gz"
           
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "TARBALL_URL=$TARBALL_URL" >> $GITHUB_ENV
