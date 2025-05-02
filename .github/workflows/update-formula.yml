@@ -1,12 +1,15 @@
 name: Update Formula on New Release
 on:
-  workflow_dispatch: # Allow manual trigger
+  workflow_dispatch:
   schedule:
-    - cron: '0 */12 * * *'  # Check twice daily
+    - cron: '0 */12 * * *'
 
 jobs:
   update-formula:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout tap repository
         uses: actions/checkout@v4
@@ -15,14 +18,12 @@ jobs:
           
       - name: Set up environment
         run: |
-          echo "REPO_OWNER=livetheoogway" >> $GITHUB_ENV
+          echo "REPO_OWNER=yourusername" >> $GITHUB_ENV
           echo "REPO_NAME=bailiff" >> $GITHUB_ENV
           echo "FORMULA_PATH=Formula/bailiff.rb" >> $GITHUB_ENV
       
       - name: Fetch latest release info
-        id: latest
         run: |
-          # Fetch latest release information
           RELEASE_DATA=$(curl -s https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases/latest)
           TAG_NAME=$(echo "$RELEASE_DATA" | jq -r .tag_name)
           
@@ -39,14 +40,12 @@ jobs:
           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
       
       - name: Calculate SHA256
-        id: sha
         run: |
           curl -sL "$TARBALL_URL" -o release.tar.gz
           SHA256=$(sha256sum release.tar.gz | cut -d' ' -f1)
           echo "SHA256=$SHA256" >> $GITHUB_ENV
       
       - name: Check current formula version
-        id: check
         run: |
           CURRENT_VERSION=$(grep -o 'version "[^"]*"' $FORMULA_PATH | cut -d'"' -f2 || echo "none")
           CURRENT_SHA=$(grep -o 'sha256 "[^"]*"' $FORMULA_PATH | cut -d'"' -f2 || echo "none")
@@ -65,14 +64,9 @@ jobs:
       - name: Update formula
         if: env.NEEDS_UPDATE == 'true'
         run: |
-          # Update version and SHA256
           sed -i "s|url \".*\"|url \"$TARBALL_URL\"|" $FORMULA_PATH
           sed -i "s|sha256 \".*\"|sha256 \"$SHA256\"|" $FORMULA_PATH
-          
-          # Update any version strings in the formula
           sed -i "s|version \".*\"|version \"$VERSION\"|" $FORMULA_PATH
-          
-          # Update version check in test block
           sed -i "s|\"bailiff v[0-9.]*\"|\"bailiff v$VERSION\"|" $FORMULA_PATH
       
       - name: Create Pull Request
@@ -83,13 +77,11 @@ jobs:
           commit-message: "Update bailiff to ${{ env.VERSION }}"
           title: "Update bailiff to ${{ env.VERSION }}"
           body: |
-            Updates bailiff formula to version ${{ env.VERSION }}.
+            Updates bailiff formula to version ${{ env.VERSION }}
             
             Changes:
             - Updated URL to: ${{ env.TARBALL_URL }}
             - Updated SHA256 to: ${{ env.SHA256 }}
-            
-            This PR was automatically created by the update-formula workflow.
           branch: "update-bailiff-${{ env.VERSION }}"
           delete-branch: true
       - name: Send notification
