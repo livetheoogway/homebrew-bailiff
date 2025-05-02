@@ -45,7 +45,31 @@ jobs:
       
       - name: Check current formula version
         run: |
-          CURRENT_VERSION=$(grep -o 'version "[^"]*"' $FORMULA_PATH | cut -d'"' -f2 || echo "none")
+          # Extract version from URL and clean it
+          URL_VERSION=$(grep -o 'tags/v[0-9.]*' $FORMULA_PATH | cut -d'/' -f2 | tr -d 'v' | tr -d '.' || echo "none")
+          # If that didn't work, try again with a different approach
+          if [ "$URL_VERSION" = "none" ] || [ -z "$URL_VERSION" ]; then
+            URL_VERSION=$(grep -o 'tags/v[0-9.]*' $FORMULA_PATH | sed 's/tags\/v\([0-9.]*\)/\1/' || echo "none")
+          fi
+          
+          # Also check for version in test section as fallback
+          TEST_VERSION=$(grep -o 'bailiff v[0-9.]*' $FORMULA_PATH | cut -d' ' -f2 | tr -d 'v' || echo "none")
+          
+          # Clean up any trailing periods that shouldn't be there
+          URL_VERSION=$(echo "$URL_VERSION" | sed 's/\.$//')
+          TEST_VERSION=$(echo "$TEST_VERSION" | sed 's/\.$//')
+          
+          # Use URL version or test version, whichever is valid
+          if [ "$URL_VERSION" != "none" ] && [ ! -z "$URL_VERSION" ]; then
+            CURRENT_VERSION="$URL_VERSION"
+          elif [ "$TEST_VERSION" != "none" ] && [ ! -z "$TEST_VERSION" ]; then
+            CURRENT_VERSION="$TEST_VERSION"
+          else
+            CURRENT_VERSION="none"
+          fi
+          
+          echo "Detected version: $CURRENT_VERSION"
+          
           CURRENT_SHA=$(grep -o 'sha256 "[^"]*"' $FORMULA_PATH | cut -d'"' -f2 || echo "none")
           
           echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
