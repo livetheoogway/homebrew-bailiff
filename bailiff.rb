@@ -1,8 +1,8 @@
 class Bailiff < Formula
     desc "On-demand CLI tool manager with Zinit-like syntax for ZSH"
     homepage "https://github.com/livetheoogway/bailiff"
-    url "https://github.com/livetheoogway/bailiff/archive/refs/tags/v1.0.2.tar.gz"
-    sha256 "96b127b31c7205036cc50196abe9c45b4d98237c89a4c76cd12f52c9e0826492"
+    url "https://github.com/livetheoogway/bailiff/archive/refs/tags/v1.0.3.tar.gz"
+    sha256 "4fc673df01cb7003dafcb246635e2f0edbc14d37e839cac459be98c78df82edf"
     license "MIT"
     
     def install
@@ -58,6 +58,6 @@ class Bailiff < Formula
     end
     
     test do
-      assert_match "bailiff v1.0.2", shell_output("#{bin}/bailiff --version")
+      assert_match "bailiff v1.0.3", shell_output("#{bin}/bailiff --version")
     end
   end
