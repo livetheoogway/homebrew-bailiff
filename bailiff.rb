@@ -10,11 +10,11 @@ class Bailiff < Formula
   def install
     # Install the script to share directory instead of bin
     # This makes it clear it's meant to be sourced, not executed directly
-    (share / "bailiff").install "bailiff.sh"
+    (share/"bailiff").install "bailiff.sh"
 
     # Create a small wrapper script in bin that sources the main script
     # This allows users to run 'bailiff' command directly
-    (bin / "bailiff").write <<~EOS
+    (bin/"bailiff").write <<~EOS
       #!/bin/sh
       if [ "$1" = "--source-script" ]; then
         # Return the path to the script for sourcing
@@ -24,7 +24,7 @@ class Bailiff < Formula
         exec zsh "#{share}/bailiff/bailiff.sh" "$@"
       fi
     EOS
-    chmod 0755, bin / "bailiff"
+    chmod 0755, bin/"bailiff"
 
     # Install documentation
     prefix.install "LICENSE", "README.md"
@@ -37,21 +37,10 @@ class Bailiff < Formula
     <<~EOS
       To enable Bailiff with command-not-found handler support, add this to your ~/.zshrc:
       
-        # Source Bailiff
-        source "$(#{bin}/bailiff --source-script)"
+        source "$(brew --prefix)/bin/bailiff"
         
-        # Enable auto-summoning (command-not-found handler)
-        export BAILIFF_AUTO_SUMMON=1
-        
-      You can also configure Bailiff before sourcing:
+      Then restart your shell or run: source ~/.zshrc
       
-        # Optional configuration
-        export BAILIFF_CACHE_DIR="$HOME/.cache/bailiff"
-        export BAILIFF_QUIET=0  # Set to 1 to silence messages
-        
-        # Source Bailiff
-        source "$(#{bin}/bailiff --source-script)"
-        
       Completions have been installed to:
         #{zsh_completion}
     EOS
@@ -60,6 +49,6 @@ class Bailiff < Formula
   test do
     assert_match "bailiff v1.0.4", shell_output("#{bin}/bailiff --version")
     # Test that the source script exists
-    assert_predicate share / "bailiff/bailiff.sh", :exist?
+    assert_predicate share/"bailiff/bailiff.sh", :exist?
   end
 end
