@@ -37,7 +37,7 @@ class Bailiff < Formula
     <<~EOS
       To enable Bailiff with command-not-found handler support, add this to your ~/.zshrc:
       
-        source "$(brew --prefix)/bin/bailiff"
+        source "$(/opt/homebrew/bin/bailiff --source-script)"
         
       Then restart your shell or run: source ~/.zshrc
       
