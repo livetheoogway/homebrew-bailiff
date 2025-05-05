@@ -1,8 +1,8 @@
 class Bailiff < Formula
   desc "On-demand CLI tool manager with Zinit-like syntax for ZSH"
   homepage "https://github.com/livetheoogway/bailiff"
-  url "https://github.com/livetheoogway/bailiff/archive/refs/tags/v1.0.4.tar.gz"
-  sha256 "26db9cff9dae8df52c7887805f86a097be8bdffaa11e5284cca9729ba75c8640"
+  url "https://github.com/livetheoogway/bailiff/archive/refs/tags/v1.0.5.tar.gz"
+  sha256 "6e827783fc65ec3bb109c008d2783de980b0677681abce27504502758065cf5b"
   license "MIT"
 
   depends_on "zsh" => :recommended
@@ -47,7 +47,7 @@ class Bailiff < Formula
   end
 
   test do
-    assert_match "bailiff v1.0.4", shell_output("#{bin}/bailiff --version")
+    assert_match "bailiff v1.0.5", shell_output("#{bin}/bailiff --version")
     # Test that the source script exists
     assert_predicate share/"bailiff/bailiff.sh", :exist?
   end
