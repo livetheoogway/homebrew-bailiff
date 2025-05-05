@@ -1,8 +1,8 @@
 class Bailiff < Formula
   desc "On-demand CLI tool manager with support for ZSH, Bash, Fish, and KSH"
   homepage "https://github.com/livetheoogway/bailiff"
-  url "https://github.com/livetheoogway/bailiff/archive/refs/tags/v1.0.5.tar.gz"
-  sha256 "6e827783fc65ec3bb109c008d2783de980b0677681abce27504502758065cf5b"
+  url "https://github.com/livetheoogway/bailiff/archive/refs/tags/v1.0.6.tar.gz"
+  sha256 "bcbc581324c2d2d1e053dc50fcd17a48efd4162324f22b5bbd063db53c31bf0e"
   license "MIT"
 
   # No specific shell dependency, works with multiple shells
